@@ -10,14 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/_authenticated/projetos/$id")({
-  validateSearch: (s: Record<string, unknown>) => ({ aba: (s.aba as string) || "construcao" }),
-  head: () => ({ meta: [{ title: "Projeto — Ateliê Cultural" }, { name: "description", content: "Construção guiada do projeto." }] }),
+    head: () => ({ meta: [{ title: "Projeto — Ateliê Cultural" }, { name: "description", content: "Construção guiada do projeto." }] }),
   component: ProjectPage,
 });
 
 function ProjectPage() {
   const { id } = Route.useParams();
-  const { data: p } = useProject(id);
+  const { data } = useProject(id);
+  const p = data as import("@/lib/data").Project | undefined;
   const { data: answers = [] } = useAnswers(id);
   const tpl = useTemplate(p?.template_ref);
   const upd = useUpdateProject(id);

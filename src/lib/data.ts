@@ -64,7 +64,7 @@ export function useTemplate(ref: string | undefined) {
   });
   if (!ref) return undefined;
   if (!custom) return builtinTemplate(ref) ?? builtinTemplate("builtin:generico");
-  return q.data ? customToTemplate(q.data) : undefined;
+  return q.data ? customToTemplate(q.data as CustomTemplate) : undefined;
 }
 
 export function useUpdateProject(id: string) {

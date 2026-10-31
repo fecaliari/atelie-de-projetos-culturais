@@ -85,7 +85,7 @@ function Painel() {
               {pend.slice(0, 6).map(({ p, missing }) => (
                 <li key={p.id} className="border-l-2 border-terra pl-4">
                   <Link to="/projetos/$id" params={{ id: p.id }} className="font-medium hover:underline">{p.name}</Link>
-                  <p className="text-sm text-muted-foreground">{missing.length} campo(s) obrigatório(s) sem resposta — ex.: {missing[0].label}</p>
+                  <p className="text-sm text-muted-foreground">{missing.length} campo(s) obrigatório(s) sem resposta — ex.: {missing[0]?.label}</p>
                 </li>
               ))}
             </ul>

@@ -38,11 +38,11 @@ function Novo() {
       .select()
       .single();
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     if (name.trim()) await supabase.from("answers").insert([
       { project_id: data.id, field_key: t.fields[0]?.key ?? "nome", content: t.fields[0]?.kind === "short" ? name : "" },
     ]);
-    navigate({ to: "/projetos/$id", params: { id: data.id }, search: { aba: "construcao" } });
+    navigate({ to: "/projetos/$id", params: { id: data.id } });
   }
 
   return (
