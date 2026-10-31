@@ -67,19 +67,6 @@ export function useTemplate(ref: string | undefined) {
   return q.data ? customToTemplate(q.data) : undefined;
 }
 
-export function useTable<T extends "budget_items" | "schedule_items" | "team_members" | "project_documents">(
-  table: T,
-  projectId: string,
-) {
-  return useQuery({
-    queryKey: [table, projectId],
-    queryFn: async () =>
-      must(
-        await supabase.from(table).select("*").eq("project_id", projectId).order(table === "project_documents" ? "created_at" : "position"),
-      ) as Database["public"]["Tables"][T]["Row"][],
-  });
-}
-
 export function useUpdateProject(id: string) {
   const qc = useQueryClient();
   return useMutation({
@@ -105,7 +92,7 @@ export async function saveAnswer(projectId: string, fieldKey: string, content: s
 export async function duplicateProject(p: Project) {
   const { id, created_at, updated_at, last_opened_at, user_id, ...rest } = p;
   void created_at; void updated_at; void last_opened_at; void user_id;
-  const copy = must(await supabase.from("projects").insert({ ...rest, name: `${p.name} (cópia)`, status: "ideia" }).select().single());
+  const copy: Project = must(await supabase.from("projects").insert({ ...rest, name: `${p.name} (cópia)`, status: "ideia" }).select().single());
   const answers = must(await supabase.from("answers").select("field_key, content").eq("project_id", id));
   if (answers.length) await supabase.from("answers").insert(answers.map((a) => ({ ...a, project_id: copy.id })));
   for (const t of ["budget_items", "schedule_items", "team_members"] as const) {

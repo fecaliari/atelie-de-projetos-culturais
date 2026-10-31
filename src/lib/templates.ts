@@ -9,19 +9,19 @@ export interface TemplateField {
   key: string;
   section: string;
   label: string;
-  guidance?: string;
-  maxChars?: number | null;
+  guidance?: string | undefined;
+  maxChars?: number | null | undefined;
   required?: boolean;
   kind: FieldKind;
-  link?: LinkTarget;
-  example?: { text: string; why: string; pitfalls?: string };
+  link?: LinkTarget | undefined;
+  example?: { text: string; why: string; pitfalls?: string | undefined };
 }
 
 export interface Template {
   ref: string; // builtin:<key> ou custom:<uuid>
   name: string;
   mechanism: string;
-  source?: string;
+  source?: string | undefined;
   fields: TemplateField[];
 }
 
