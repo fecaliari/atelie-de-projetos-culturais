@@ -22,8 +22,11 @@ Tons creme/off-white, grafite e verde-musgo; títulos serifados (Fraunces), text
 - **Fase 3** — Radar: fontes do ES (estado e todos os municípios) e nacionais, pesquisa manual e semanal, histórico, nunca marcar "aberto" sem verificação.
 - **Fase 4** — Compatibilidade projeto × edital, pendências documentais, integrações opcionais.
 
-## Preciso de você
-- **Funcultura (piloto)**: o documento proíbe inventar campos do edital. Envie o edital vigente e o formulário oficial (PDF/DOCX) para eu montar o roteiro fiel. Até lá, uso o roteiro genérico de 6 etapas.
+## Mecanismos piloto
+- **Funcultura (ES)**: roteiro montado fielmente a partir da Ficha de Inscrição (Cultura Digital) que você enviou — mesmos campos, ordem e limites.
+- **Lei Rouanet**: roteiro montado a partir do Manual do Proponente IN 2026.
+- **Campos próprios por edital**: como cada edital tem exigências individuais, você poderá criar um modelo a partir de um piloto e adicionar, editar, reordenar ou remover campos (título, orientação, limite de caracteres, obrigatório). Cada projeto fica ligado ao modelo escolhido.
+- Projetos sem edital usam o roteiro genérico de 6 etapas.
 
 ## Detalhes técnicos
 - Lovable Cloud para login, banco, armazenamento privado; RLS por `user_id` em todas as tabelas.
