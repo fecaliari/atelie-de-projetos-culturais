@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/chat")({
       POST: async ({ request }) => {
         const token = request.headers.get("authorization")?.replace(/^Bearer /, "");
         if (!token) return new Response("Não autorizado", { status: 401 });
-        const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
+        const sb = createClient(process.env["SUPABASE_URL"]!, process.env["SUPABASE_PUBLISHABLE_KEY"]!, {
           auth: { persistSession: false },
         });
         const { data, error } = await sb.auth.getUser(token);
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/api/chat")({
 
         const body = (await request.json()) as { messages?: UIMessage[] };
         if (!Array.isArray(body.messages)) return new Response("Pedido inválido", { status: 400 });
-        const apiKey = process.env.LOVABLE_API_KEY;
+        const apiKey = process.env["LOVABLE_API_KEY"];
         if (!apiKey) return new Response("IA não configurada", { status: 500 });
 
         const messages = await convertToModelMessages(body.messages);
