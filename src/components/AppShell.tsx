@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { HelpChat } from "./HelpChat";
 
 const NAV = [
   { to: "/painel", label: "Visão geral", n: "01" },
@@ -64,6 +65,7 @@ export function AppShell() {
       <main className="min-w-0 px-5 py-8 md:px-12 md:py-12">
         <Outlet />
       </main>
+      <HelpChat />
     </div>
   );
 }
