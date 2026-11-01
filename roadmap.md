@@ -8,6 +8,10 @@
 - [ ] Abas Orçamento, Cronograma, Equipe, Acessibilidade, Democratização, Documentos (o banco já está pronto)
 - [ ] Revisão de respostas por IA (perguntas complementares)
 - [ ] Exportação DOCX e PDF
+- [x] Renomear projeto
+- [x] Botão de ajuda com conversa por IA
+- [ ] Módulo de verificação: erros de texto; produtos/ações sem item no orçamento; estimativa de relevância e chance de aprovação
+  - Sugestões: checar limites de caracteres e campos obrigatórios; coerência entre cronograma, equipe e orçamento; metas mensuráveis; acessibilidade/democratização mínimas exigidas pelo edital; documentos pendentes
 - [ ] Fase 2 — Bibliotecas e "Adicionar fonte"
 - [ ] Fase 3 — Radar de oportunidades
 - [ ] Fase 4 — Compatibilidade
