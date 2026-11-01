@@ -32,6 +32,15 @@ function ProjectPage() {
   return (
     <div className="max-w-4xl">
       <PageHeader eyebrow={tpl.name} title={p.name}>
+        <Button
+          variant="outline"
+          onClick={() => {
+            const n = window.prompt("Novo nome do projeto", p.name)?.trim();
+            if (n && n !== p.name) upd.mutate({ name: n });
+          }}
+        >
+          Renomear
+        </Button>
         <select className="h-9 rounded-sm border border-input bg-paper px-2 text-sm" value={p.status} onChange={(e) => upd.mutate({ status: e.target.value })}>
           {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
         </select>
