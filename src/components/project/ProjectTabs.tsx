@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 type RowTable = "budget_items" | "schedule_items" | "team_members";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Row = { id: string; position: number; [k: string]: any };
+type Row = { id: string; position: number } & Partial<Record<"quantity" | "occurrences" | "unit_value", number>> &
+  Partial<Record<"category" | "description" | "unit" | "phase" | "activity" | "start_date" | "end_date" | "duration" | "location" | "name" | "role" | "bio", string | null>>;
 
 function useRows(table: RowTable, projectId: string) {
   const qc = useQueryClient();
