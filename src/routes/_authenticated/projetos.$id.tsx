@@ -8,6 +8,9 @@ import { sectionsOf, type TemplateField } from "@/lib/templates";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { AccessibilityTab, BudgetTab, DemocratizationTab, DocumentsTab, ScheduleTab, TeamTab } from "@/components/project/ProjectTabs";
+
+const TABS = ["Perguntas", "Orçamento", "Cronograma", "Equipe", "Acessibilidade", "Democratização", "Documentos"] as const;
 
 export const Route = createFileRoute("/_authenticated/projetos/$id")({
     head: () => ({ meta: [{ title: "Projeto — Ateliê Cultural" }, { name: "description", content: "Construção guiada do projeto." }] }),
@@ -23,6 +26,7 @@ function ProjectPage() {
   const upd = useUpdateProject(id);
   const [step, setStep] = useState(0);
   const [showFull, setShowFull] = useState(false);
+  const [tab, setTab] = useState<(typeof TABS)[number]>("Perguntas");
 
   if (!p || !tpl) return <p className="text-muted-foreground">Carregando…</p>;
   const sections = sectionsOf(tpl.fields);
@@ -47,7 +51,20 @@ function ProjectPage() {
         <Button variant="outline" onClick={() => setShowFull(!showFull)}>{showFull ? "Voltar às perguntas" : "Ver projeto completo"}</Button>
       </PageHeader>
 
-      {showFull ? (
+      {!showFull && (
+        <nav className="mb-8 flex flex-wrap gap-4 border-b border-border">
+          {TABS.map((t) => (
+            <button key={t} onClick={() => setTab(t)} className={`-mb-px border-b-2 pb-2 text-sm ${tab === t ? "border-primary font-medium" : "border-transparent text-muted-foreground"}`}>{t}</button>
+          ))}
+        </nav>
+      )}
+      {!showFull && tab === "Orçamento" ? <BudgetTab projectId={id} />
+      : !showFull && tab === "Cronograma" ? <ScheduleTab projectId={id} />
+      : !showFull && tab === "Equipe" ? <TeamTab projectId={id} />
+      : !showFull && tab === "Acessibilidade" ? <AccessibilityTab project={p} />
+      : !showFull && tab === "Democratização" ? <DemocratizationTab project={p} />
+      : !showFull && tab === "Documentos" ? <DocumentsTab projectId={id} />
+      : showFull ? (
         <div className="space-y-6">
           {tpl.fields.map((f) => (
             <div key={f.key} className="border-b border-border pb-4">
