@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 type RowTable = "budget_items" | "schedule_items" | "team_members";
-type Row = Record<string, unknown> & { id: string; position: number };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Row = { id: string; position: number; [k: string]: any };
 
 function useRows(table: RowTable, projectId: string) {
   const qc = useQueryClient();
