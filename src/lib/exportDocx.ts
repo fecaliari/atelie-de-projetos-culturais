@@ -22,7 +22,7 @@ const cellBorder = { style: BorderStyle.SINGLE, size: 1, color: "BBBBBB" };
 const cellBorders = { top: cellBorder, bottom: cellBorder, left: cellBorder, right: cellBorder };
 const margins = { top: 80, bottom: 80, left: 120, right: 120 };
 
-function cell(text: string, w: number, opts: { bold?: boolean; right?: boolean; fill?: string } = {}) {
+function cell(text: string, w: number, opts: { bold?: boolean; right?: boolean; fill?: string | undefined } = {}) {
   return new TableCell({
     borders: cellBorders,
     width: { size: w, type: WidthType.DXA },

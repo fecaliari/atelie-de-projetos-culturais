@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildExportModel, fileName } from "@/lib/exportDoc";
+import { brl } from "@/lib/constants";
 import { builtinTemplate } from "@/lib/templates";
 import type { Answer, Project } from "@/lib/data";
 
@@ -54,7 +55,7 @@ describe("exportação do projeto", () => {
       docs: [],
     });
     expect(m.budget.total).toBe(4000 + 900);
-    expect(m.budget.byCategory.find((c) => c.label === "Acessibilidade")?.text).toBe("R$ 900,00");
+    expect(m.budget.byCategory.find((c) => c.label === "Acessibilidade")?.text).toBe(brl(900));
   });
 
   it("gera nome de arquivo sem acentos nem espaços", () => {
