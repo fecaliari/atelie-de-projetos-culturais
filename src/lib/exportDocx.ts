@@ -27,11 +27,11 @@ function cell(text: string, w: number, opts: { bold?: boolean; right?: boolean; 
     borders: cellBorders,
     width: { size: w, type: WidthType.DXA },
     margins,
-    shading: opts.fill ? { fill: opts.fill, type: ShadingType.CLEAR } : undefined,
+    ...(opts.fill ? { shading: { fill: opts.fill, type: ShadingType.CLEAR } } : {}),
     children: [
       new Paragraph({
         alignment: opts.right ? AlignmentType.RIGHT : AlignmentType.LEFT,
-        children: [new TextRun({ text: text || "—", bold: opts.bold, size: 18 })],
+        children: [new TextRun({ text: text || "—", bold: !!opts.bold, size: 18 })],
       }),
     ],
   });
@@ -46,7 +46,7 @@ function tableOf(widths: number[], rows: (string | boolean | undefined)[][]) {
         new TableRow({
           tableHeader: i === 0,
           children: r.map((v, c) =>
-            cell(String(v ?? ""), widths[c], { bold: i === 0, right: c === widths.length - 1 && i > 0, fill: i === 0 ? "EFEDE6" : undefined }),
+            cell(String(v ?? ""), widths[c] ?? 0, { bold: i === 0, right: c === widths.length - 1 && i > 0, fill: i === 0 ? "EFEDE6" : undefined }),
           ),
         }),
     ),
@@ -55,8 +55,8 @@ function tableOf(widths: number[], rows: (string | boolean | undefined)[][]) {
 
 const heading = (text: string) => new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun(text)] });
 const sub = (text: string) => new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun(text)] });
-const para = (text: string, opts: { bold?: boolean; italic?: boolean; size?: number } = {}) =>
-  new Paragraph({ spacing: { after: 120 }, children: [new TextRun({ text, bold: opts.bold, italic: opts.italic, size: opts.size ?? 22 })] });
+const para = (text: string, opts: { bold?: boolean; italics?: boolean; size?: number } = {}) =>
+  new Paragraph({ spacing: { after: 120 }, children: [new TextRun({ text, bold: !!opts.bold, italics: !!opts.italics, size: opts.size ?? 22 })] });
 const bullet = (text: string) => new Paragraph({ numbering: { reference: "bullets", level: 0 }, children: [new TextRun({ text, size: 22 })] });
 
 const money = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
