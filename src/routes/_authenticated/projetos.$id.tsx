@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { VerifyTab } from "@/components/project/VerifyTab";
+import { ExportTab } from "@/components/project/ExportTab";
 import { AccessibilityTab, BudgetTab, DemocratizationTab, DocumentsTab, ScheduleTab, TeamTab } from "@/components/project/ProjectTabs";
 
-const TABS = ["Perguntas", "Orçamento", "Cronograma", "Equipe", "Acessibilidade", "Democratização", "Documentos", "Verificação"] as const;
+const TABS = ["Perguntas", "Orçamento", "Cronograma", "Equipe", "Acessibilidade", "Democratização", "Documentos", "Verificação", "Exportar"] as const;
 
 export const Route = createFileRoute("/_authenticated/projetos/$id")({
     head: () => ({ meta: [{ title: "Projeto — Ateliê Cultural" }, { name: "description", content: "Construção guiada do projeto." }] }),
@@ -66,6 +67,7 @@ function ProjectPage() {
       : !showFull && tab === "Democratização" ? <DemocratizationTab project={p} />
       : !showFull && tab === "Documentos" ? <DocumentsTab projectId={id} />
       : !showFull && tab === "Verificação" ? <VerifyTab project={p} template={tpl} answers={answers} />
+      : !showFull && tab === "Exportar" ? <ExportTab project={p} template={tpl} answers={answers} />
       : showFull ? (
         <div className="space-y-6">
           {tpl.fields.map((f) => (
