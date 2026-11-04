@@ -1,6 +1,6 @@
 import type { TemplateField } from "./templates";
 
-export type Finding = { level: "erro" | "alerta" | "ok"; title: string; detail?: string };
+export type Finding = { level: "erro" | "alerta" | "ok"; title: string; detail?: string | undefined };
 
 type Budget = { description: string; category: string; quantity: number; unit_value: number; occurrences: number };
 type Team = { name: string; role: string };
