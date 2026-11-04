@@ -101,18 +101,19 @@ class Sheet {
   }
 
   table(headers: string[], widths: number[], rows: string[][]) {
+    const w = widths.map((x) => x ?? 0);
     const draw = (cells: string[], bold: boolean) => {
-      const wrapped = cells.map((c, i) => this.lines(c, 8.5, bold ? this.b : this.r, widths[i] - 8));
-      const h = Math.max(...wrapped.map((w) => w.length)) * 11 + 8;
+      const wrapped = cells.map((c, i) => this.lines(c, 8.5, bold ? this.b : this.r, (w[i] ?? 12) - 8));
+      const h = Math.max(...wrapped.map((x) => x.length), 1) * 11 + 8;
       this.need(h);
       const top = this.y;
       if (bold) this.page.drawRectangle({ x: M, y: top - h, width: CW, height: h, color: rgb(0.94, 0.93, 0.9) });
       let x = M;
       for (let i = 0; i < wrapped.length; i++) {
-        wrapped[i].forEach((line, li) => {
+        for (const [li, line] of (wrapped[i] ?? []).entries()) {
           this.page.drawText(line, { x: x + 4, y: top - 12 - li * 11, size: 8.5, font: bold ? this.b : this.r, color: INK });
-        });
-        x += widths[i];
+        }
+        x += w[i] ?? 0;
       }
       this.page.drawLine({ start: { x: M, y: top - h }, end: { x: A4.w - M, y: top - h }, thickness: 0.5, color: LINE });
       this.y = top - h;

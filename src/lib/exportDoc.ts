@@ -140,7 +140,7 @@ export function buildExportModel(input: {
     { label: "Como cada medida será feita", text: dem.details?.trim() || EMPTY },
   ];
 
-  const schedule: ScheduleLine[] = schedule.map((s) => ({
+  const scheduleLines: ScheduleLine[] = schedule.map((s) => ({
     phase: s.phase ?? "",
     activity: s.activity ?? "",
     start_date: s.start_date ?? null,
@@ -163,7 +163,7 @@ export function buildExportModel(input: {
     info,
     sections,
     budget: { lines, byCategory, total },
-    schedule,
+    schedule: scheduleLines,
     team: teamLines,
     accessibility,
     democratization,
