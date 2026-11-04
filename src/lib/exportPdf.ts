@@ -110,9 +110,7 @@ class Sheet {
       let x = M;
       for (let i = 0; i < wrapped.length; i++) {
         wrapped[i].forEach((line, li) => {
-          const w = widths[i] - 8;
-          const tx = bold || i === widths.length - 1 ? x + 4 : x + 4;
-          this.page.drawText(line, { x: tx, y: top - 12 - li * 11, size: 8.5, font: bold ? this.b : this.r, color: bold ? INK : INK });
+          this.page.drawText(line, { x: x + 4, y: top - 12 - li * 11, size: 8.5, font: bold ? this.b : this.r, color: INK });
         });
         x += widths[i];
       }
@@ -127,7 +125,6 @@ class Sheet {
 
 export async function buildPdf(m: ExportModel): Promise<Blob> {
   const doc = await PDFDocument.create();
-  doc.registerFontkit;
   const [r, b, i] = await Promise.all([doc.embedFont(StandardFonts.Helvetica), doc.embedFont(StandardFonts.HelveticaBold), doc.embedFont(StandardFonts.HelveticaOblique)]);
   const s = new Sheet(doc, [r, b, i]);
 
@@ -212,5 +209,5 @@ export async function buildPdf(m: ExportModel): Promise<Blob> {
   });
 
   const bytes = await doc.save();
-  return new Blob([bytes], { type: "application/pdf" });
+  return new Blob([bytes as unknown as BlobPart], { type: "application/pdf" });
 }
