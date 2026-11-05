@@ -134,8 +134,8 @@
   h1, h2, h3, .font-serif {
     font-family: var(--font-serif);
     letter-spacing: -0.02em;
-    text-transform: lowercase;
   }
+  h1 { text-transform: lowercase; }
 }
 
 @utility eyebrow {
