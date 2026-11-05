@@ -52,13 +52,15 @@ class Sheet {
 
   lines(text: string, size: number, font: PDFFont, width: number, indent = 0) {
     const out: string[] = [];
-    for (const raw of safe(text).split("\n")) {
-      if (!raw) {
+    // Divide por quebras de linha ANTES de sanitizar: safe() remove "\n".
+    for (const raw of text.split("\n")) {
+      const line = safe(raw);
+      if (!line) {
         out.push("");
         continue;
       }
       let cur = "";
-      for (const word of raw.split(/(\s+)/)) {
+      for (const word of line.split(/(\s+)/)) {
         const test = cur + word;
         if (font.widthOfTextAtSize(test, size) > width - indent && cur) {
           out.push(cur.trimEnd());

@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, type UIMessage } from "ai";
 import { createClient } from "@supabase/supabase-js";
-import { createResponsesCall } from "@/server/ai/responses";
 
 const INSTRUCTIONS = `Você é uma avaliadora experiente de projetos culturais (Funcultura-ES, Lei Rouanet e editais).
 Receberá o texto completo de um projeto, o orçamento, cronograma, equipe, acessibilidade e democratização.
@@ -31,6 +30,7 @@ export const Route = createFileRoute("/api/verify")({
         const apiKey = process.env["LOVABLE_API_KEY"];
         if (!apiKey) return new Response("IA não configurada", { status: 500 });
         const messages = await convertToModelMessages(body.messages.slice(-1));
+        const { createResponsesCall } = await import("@/lib/ai-gateway.server");
         return createResponsesCall(
           request,
           { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra" },

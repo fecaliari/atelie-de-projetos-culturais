@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { convertToModelMessages, type UIMessage } from "ai";
 import { createClient } from "@supabase/supabase-js";
-import { createResponsesCall } from "@/server/ai/responses";
 
 const INSTRUCTIONS = `Você é a assistente de ajuda do Ateliê Cultural, um app para escrever projetos culturais (Funcultura-ES, Lei Rouanet, editais).
 Responda em português do Brasil, de forma clara e breve.
@@ -26,6 +25,7 @@ export const Route = createFileRoute("/api/chat")({
         if (!apiKey) return new Response("IA não configurada", { status: 500 });
 
         const messages = await convertToModelMessages(body.messages);
+        const { createResponsesCall } = await import("@/lib/ai-gateway.server");
         return createResponsesCall(
           request,
           { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra" },
