@@ -6,8 +6,8 @@
 - [x] Roteiro piloto Lei Rouanet (Manual do Proponente IN 2026)
 - [ ] Editor de modelos: adicionar campos próprios de cada edital (o banco já está pronto)
 - [x] Abas Orçamento, Cronograma, Equipe, Acessibilidade, Democratização, Documentos
-- [ ] Revisão de respostas por IA (perguntas complementares)
-- [ ] Exportação DOCX e PDF
+- [x] Revisão de respostas por IA (perguntas complementares)
+- [x] Exportação DOCX e PDF
 - [x] Renomear projeto
 - [x] Botão de ajuda com conversa por IA
 - [x] Módulo de verificação: erros de texto; produtos/ações sem item no orçamento; estimativa de relevância e chance de aprovação
