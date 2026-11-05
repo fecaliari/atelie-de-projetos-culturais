@@ -30,7 +30,7 @@ export const Route = createFileRoute("/api/verify")({
         const apiKey = process.env["LOVABLE_API_KEY"];
         if (!apiKey) return new Response("IA não configurada", { status: 500 });
         const messages = await convertToModelMessages(body.messages.slice(-1));
-        const { createResponsesCall } = await import("@/server/ai/responses");
+        const { createResponsesCall } = await import("@/lib/ai-gateway.server");
         return createResponsesCall(
           request,
           { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra" },
