@@ -1,0 +1,2 @@
+CREATE POLICY "read templates of shared projects" ON public.templates FOR SELECT TO authenticated
+  USING (EXISTS (SELECT 1 FROM public.projects p WHERE p.template_ref = 'custom:' || templates.id::text AND public.can_access_project(p.id)));

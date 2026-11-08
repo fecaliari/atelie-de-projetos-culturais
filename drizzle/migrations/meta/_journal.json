@@ -15,6 +15,13 @@
       "when": 1794172922587,
       "tag": "0001_project_collaboration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794173038077,
+      "tag": "0002_shared_template_read",
+      "breakpoints": true
     }
   ]
 }
