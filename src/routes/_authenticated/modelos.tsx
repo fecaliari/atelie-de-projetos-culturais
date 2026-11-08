@@ -40,7 +40,7 @@ function TemplatesPage() {
       .insert({ name: `${b.name} — cópia`, mechanism: b.mechanism, base_key: b.ref, fields: b.fields as never })
       .select()
       .single();
-    if (r.error) return toast.error(r.error.message);
+    if (r.error) { toast.error(r.error.message); return; }
     qc.invalidateQueries({ queryKey: ["templates"] });
     setEditing(r.data);
   }
@@ -109,11 +109,11 @@ function Editor({ tpl, onClose }: { tpl: CustomTemplate; onClose: () => void }) 
     setFields([...fields, { key: slugKey("novo campo"), section: sections[sections.length - 1] ?? "Campos do edital", label: "Novo campo", kind: "long", required: false }]);
 
   async function save() {
-    if (fields.some((f) => !f.label.trim() || !f.section.trim())) return toast.error("Todo campo precisa de título e etapa.");
+    if (fields.some((f) => !f.label.trim() || !f.section.trim())) { toast.error("Todo campo precisa de título e etapa."); return; }
     setSaving(true);
     const r = await supabase.from("templates").update({ name: name.trim() || "Modelo sem nome", mechanism, notes, fields: fields as never }).eq("id", tpl.id);
     setSaving(false);
-    if (r.error) return toast.error(r.error.message);
+    if (r.error) { toast.error(r.error.message); return; }
     setDirty(false);
     toast.success("Modelo salvo");
   }
