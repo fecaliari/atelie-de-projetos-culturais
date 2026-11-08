@@ -4,7 +4,8 @@
 - [x] Construção guiada por etapas com "Ver exemplo", salvamento automático, histórico de versões e visão completa
 - [x] Roteiro piloto Funcultura (Ficha de Inscrição – Cultura Digital 2025)
 - [x] Roteiro piloto Lei Rouanet (Manual do Proponente IN 2026)
-- [ ] Editor de modelos: adicionar campos próprios de cada edital (o banco já está pronto)
+- [x] Editor de modelos: adicionar campos próprios de cada edital
+- [x] Colaboração: convidar pessoas por e-mail para editar o projeto
 - [x] Abas Orçamento, Cronograma, Equipe, Acessibilidade, Democratização, Documentos
 - [x] Revisão de respostas por IA (perguntas complementares)
 - [x] Exportação DOCX e PDF
