@@ -175,6 +175,38 @@ export type Database = {
           },
         ]
       }
+      project_members: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projects: {
         Row: {
           accessibility: Json
@@ -370,7 +402,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_access_project: { Args: { _pid: string }; Returns: boolean }
+      can_access_project_text: { Args: { _pid: string }; Returns: boolean }
+      is_project_owner: { Args: { _pid: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
