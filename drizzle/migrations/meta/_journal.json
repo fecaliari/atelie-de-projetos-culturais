@@ -8,6 +8,13 @@
       "when": 1793477364334,
       "tag": "0000_atelie_fase1",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794172922587,
+      "tag": "0001_project_collaboration",
+      "breakpoints": true
     }
   ]
 }
