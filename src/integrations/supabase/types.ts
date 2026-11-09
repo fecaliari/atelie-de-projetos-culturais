@@ -134,6 +134,57 @@ export type Database = {
           },
         ]
       }
+      library_sources: {
+        Row: {
+          analysis: string
+          content: string
+          created_at: string
+          file_name: string | null
+          file_path: string | null
+          id: string
+          kind: string
+          library: string
+          notes: string
+          reviewed: boolean
+          title: string
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          analysis?: string
+          content?: string
+          created_at?: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          kind: string
+          library: string
+          notes?: string
+          reviewed?: boolean
+          title: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Update: {
+          analysis?: string
+          content?: string
+          created_at?: string
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          kind?: string
+          library?: string
+          notes?: string
+          reviewed?: boolean
+          title?: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       project_documents: {
         Row: {
           created_at: string
