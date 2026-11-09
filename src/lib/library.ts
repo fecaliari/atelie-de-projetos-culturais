@@ -37,7 +37,8 @@ export async function extractSourceFile(file: File) {
     const pdfjs = await import("pdfjs-dist");
     const worker = await import("pdfjs-dist/build/pdf.worker.min.mjs?url");
     pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
-    const pdf = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+    const loading = pdfjs.getDocument({ data: await file.arrayBuffer() });
+    const pdf = await loading.promise;
     try {
       const pages: string[] = [];
       for (let i = 1; i <= pdf.numPages; i++) {
@@ -48,7 +49,7 @@ export async function extractSourceFile(file: File) {
       const value = pages.join("\n\n");
       if (!value.trim()) throw new Error("Este PDF não contém texto selecionável. Cole o texto da fonte para realizar a leitura.");
       return readingContent(value);
-    } finally { await pdf.destroy(); }
+    } finally { await loading.destroy(); }
   }
   throw new Error("Escolha um arquivo PDF, DOCX, TXT ou MD.");
 }
