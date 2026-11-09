@@ -4,7 +4,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Ateliê Cultural — projetos culturais com autoria" },
-      { name: "description", content: "Estruture projetos culturais para editais do Espírito Santo e do Brasil respondendo a perguntas guiadas." },
+      { name: "description", content: "Estruture projetos culturais para editais do Espírito Santo e do Brasil respondendo a perguntas guiadas." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
       { property: "og:title", content: "Ateliê Cultural — projetos culturais com autoria" },
       { property: "og:description", content: "Perguntas guiadas, orçamento, cronograma e exportação para Funcultura, Lei Rouanet e outros editais." },
     ],

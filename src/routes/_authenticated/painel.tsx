@@ -6,7 +6,7 @@ import { builtinTemplate } from "@/lib/templates";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/painel")({
-  head: () => ({ meta: [{ title: "Visão geral — Ateliê Cultural" }, { name: "description", content: "Painel de trabalho dos seus projetos culturais." }] }),
+  head: () => ({ meta: [{ title: "Visão geral — Ateliê Cultural" }, { name: "description", content: "Painel de trabalho dos seus projetos culturais." }, { property: "og:title", content: "Visão geral — Ateliê Cultural" }, { property: "og:description", content: "Painel de trabalho dos seus projetos culturais." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: Painel,
 });
 

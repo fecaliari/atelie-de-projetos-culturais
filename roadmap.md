@@ -13,7 +13,8 @@
 - [x] Botão de ajuda com conversa por IA
 - [x] Módulo de verificação: erros de texto; produtos/ações sem item no orçamento; estimativa de relevância e chance de aprovação
   - Incluir também: checar limites de caracteres e campos obrigatórios; coerência entre cronograma, equipe e orçamento; metas mensuráveis; acessibilidade/democratização mínimas exigidas pelo edital; documentos pendentes
-- [ ] Fase 2 — Bibliotecas e "Adicionar fonte"
+- [x] Fase 2 — Bibliotecas e "Adicionar fonte": arquivos privados (PDF, DOCX, TXT, MD), links, vídeos, textos, busca e leitura por IA com revisão manual
+  - Links e vídeos: leitura do texto/transcrição colado; captura automática e transcrição não incluídas nesta rodada
 - [ ] Fase 3 — Radar de oportunidades
 - [ ] Fase 4 — Compatibilidade
 - [ ] Conectar domínio próprio após publicar
