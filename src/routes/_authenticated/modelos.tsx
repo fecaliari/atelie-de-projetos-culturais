@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/modelos")({
   head: () => ({
     meta: [
       { title: "Modelos de edital — Ateliê Cultural" },
-      { name: "description", content: "Crie modelos a partir do Funcultura ou da Rouanet e adicione campos próprios de cada edital." },
+      { name: "description", content: "Crie modelos a partir do Funcultura ou da Rouanet e adicione campos próprios de cada edital." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" },
       { property: "og:title", content: "Modelos de edital — Ateliê Cultural" },
       { property: "og:description", content: "Modelos de perguntas com campos próprios de cada edital." },
     ],

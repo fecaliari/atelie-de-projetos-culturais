@@ -16,7 +16,7 @@ import { AccessibilityTab, BudgetTab, DemocratizationTab, DocumentsTab, Schedule
 const TABS = ["Perguntas", "Orçamento", "Cronograma", "Equipe", "Acessibilidade", "Democratização", "Documentos", "Verificação", "Exportar", "Colaboração"] as const;
 
 export const Route = createFileRoute("/_authenticated/projetos/$id")({
-    head: () => ({ meta: [{ title: "Projeto — Ateliê Cultural" }, { name: "description", content: "Construção guiada do projeto." }] }),
+    head: () => ({ meta: [{ title: "Projeto — Ateliê Cultural" }, { name: "description", content: "Construção guiada do projeto." }, { property: "og:title", content: "Projeto — Ateliê Cultural" }, { property: "og:description", content: "Construção guiada do projeto." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: ProjectPage,
 });
 

@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { LanguagePicker } from "@/components/project/LanguagePicker";
 
 export const Route = createFileRoute("/_authenticated/projetos/novo")({
-  head: () => ({ meta: [{ title: "Novo projeto — Ateliê Cultural" }, { name: "description", content: "Comece um novo projeto cultural." }] }),
+  head: () => ({ meta: [{ title: "Novo projeto — Ateliê Cultural" }, { name: "description", content: "Comece um novo projeto cultural." }, { property: "og:title", content: "Novo projeto — Ateliê Cultural" }, { property: "og:description", content: "Comece um novo projeto cultural." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: Novo,
 });
 

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/projetos/")({
-  head: () => ({ meta: [{ title: "Meus projetos — Ateliê Cultural" }, { name: "description", content: "Todos os seus projetos culturais." }] }),
+  head: () => ({ meta: [{ title: "Meus projetos — Ateliê Cultural" }, { name: "description", content: "Todos os seus projetos culturais." }, { property: "og:title", content: "Meus projetos — Ateliê Cultural" }, { property: "og:description", content: "Todos os seus projetos culturais." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
   component: Projetos,
 });
 
