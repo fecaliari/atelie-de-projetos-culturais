@@ -11,8 +11,9 @@ O endereço final, `atelie.caco.online`, é configurado no DNS da Hostinger.
 3. As chaves públicas já estão no arquivo `.env`. Nunca coloque a `service_role` nem a senha do banco no repositório.
 
 ## 2. Cloudflare Pages
-1. Workers & Pages > Create > Pages > Connect to Git > escolher este repositório e a branch `main`.
-2. Build command: `bun run build`  |  Build output directory: `dist`
+Atenção: tem que ser **Pages**, e não "Workers". O botão de criar projeto da Cloudflare oferece os dois, e o caminho de Workers pede um "Deploy command" que não funciona com este app (e não deixa usar o subdomínio com DNS na Hostinger).
+1. Workers & Pages > **Create application > Pages > Connect to Git** > escolher este repositório e a branch `main`.
+2. Build command: `bun run build`  |  Build output directory: `dist`  (não existe "Deploy command" no Pages).
 3. Settings > Variables and Secrets (Production): `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` (os mesmos valores do `.env`).
 4. Settings > Runtime > Compatibility flags: adicionar `nodejs_compat`.
 5. Fazer um novo deploy e abrir o endereço `*.pages.dev` pra testar o cadastro e o login.
