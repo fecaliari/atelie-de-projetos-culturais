@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { Plus, Search, ArrowLeft, ExternalLink, FileText, Link as LinkIcon, Film, BookOpen, Trash2, Sparkles, Check, Save, Loader2 } from "lucide-react";
+import { Plus, Search, ArrowLeft, ExternalLink, FileText, Link as LinkIcon, Film, BookOpen, Trash2, Sparkles, Check, Save } from "lucide-react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { libraryQuery, SOURCE_KINDS, extractSourceFile, publicLink, type Library, type Source } from "@/lib/library";
-import { readLibrarySource } from "@/lib/library.functions";
+import { PromptCard } from "@/components/PromptCard";
+import { libraryInstructions, composePrompt } from "@/lib/prompts";
 
 const ICONS = { arquivo: FileText, link: LinkIcon, video: Film, texto: BookOpen };
 type Draft = { title: string; kind: Source["kind"]; url: string; content: string; notes: string; analysis: string; reviewed: boolean };
@@ -39,11 +39,10 @@ export function LibraryPage({ library }: { library: Library }) {
 
 function SourceEditor({ source, library, onClose, onSaved }: { source: Source | null; library: Library; onClose: () => void; onSaved: (source: Source) => void }) {
   const qc = useQueryClient();
-  const readSource = useServerFn(readLibrarySource);
   const [draft, setDraft] = useState<Draft>(source ? { title: source.title, kind: source.kind, url: source.url ?? "", content: source.content, notes: source.notes, analysis: source.analysis, reviewed: source.reviewed } : fresh());
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
-  const [reading, setReading] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState("");
@@ -88,16 +87,6 @@ function SourceEditor({ source, library, onClose, onSaved }: { source: Source | 
       setError(err instanceof Error ? err.message : "Não foi possível salvar.");
     } finally { setBusy(false); }
   }
-  async function analyze() {
-    if (!source || dirty) { setError("Salve as alterações antes de solicitar a leitura."); return; }
-    setReading(true); setError("");
-    try {
-      const result = await readSource({ data: { id: source.id } });
-      if (result.error || !result.analysis) throw new Error(result.error ?? "Leitura indisponível.");
-      update({ analysis: result.analysis, reviewed: false });
-    } catch (err) { setError(err instanceof Error ? err.message : "Não foi possível concluir a leitura."); }
-    finally { setReading(false); }
-  }
   async function openOriginal() {
     if (source?.file_path) {
       const result = await supabase.storage.from("library-files").createSignedUrl(source.file_path, 120);
@@ -114,7 +103,7 @@ function SourceEditor({ source, library, onClose, onSaved }: { source: Source | 
     await qc.invalidateQueries({ queryKey: ["library", library] });
     toast.success("Fonte apagada"); onClose();
   }
-  const locked = busy || reading || extracting;
+  const locked = busy || extracting;
   return <div className="max-w-5xl">
     <PageHeader eyebrow={library === "editais" ? "Editais" : "Referências"} title={source ? "fonte do acervo" : "adicionar fonte"}>
       <Button variant="outline" onClick={back} disabled={locked}><ArrowLeft className="size-4" />Voltar</Button><Button onClick={save} disabled={locked}><Save className="size-4" />{busy ? "Salvando…" : "Salvar fonte"}</Button>
@@ -129,7 +118,8 @@ function SourceEditor({ source, library, onClose, onSaved }: { source: Source | 
       <label className="block text-sm">Anotações<Textarea className="mt-2 min-h-24 bg-paper" value={draft.notes} onChange={e => update({ notes: e.target.value })} /></label>
     </fieldset>
     <section className="mt-10 border-t-2 border-primary pt-6">
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl text-primary">leitura da fonte</h2><div className="flex flex-wrap gap-2">{(source?.file_path || draft.url) && <Button variant="outline" onClick={openOriginal} disabled={locked}><ExternalLink className="size-4" />Original</Button>}<Button variant="outline" onClick={analyze} disabled={locked || !source || dirty || !draft.content.trim()}>{reading ? <Loader2 className="size-4 animate-spin motion-reduce:animate-none" /> : <Sparkles className="size-4" />}{reading ? "Lendo fonte…" : "Ler com IA"}</Button></div></div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl text-primary">leitura da fonte</h2><div className="flex flex-wrap gap-2">{(source?.file_path || draft.url) && <Button variant="outline" onClick={openOriginal} disabled={locked}><ExternalLink className="size-4" />Original</Button>}<Button variant="outline" onClick={() => setShowPrompt(v => !v)} disabled={locked || !draft.content.trim()}><Sparkles className="size-4" />{showPrompt ? "Esconder texto para IA" : "Preparar texto para IA"}</Button></div></div>
+      {showPrompt && <div className="mb-4"><PromptCard prompt={composePrompt(libraryInstructions(library), `Título: ${draft.title}\nTipo: ${draft.kind}\nTexto da fonte:\n${draft.content}`)} hint="Copie o texto abaixo, cole no seu chat de IA e traga a resposta de volta para o campo de leitura preliminar. Depois, confira com a fonte original." /></div>}
       <label className="block text-sm">Leitura preliminar — conferir no original<Textarea aria-label="Leitura preliminar" className="mt-2 min-h-64 bg-paper" value={draft.analysis} onChange={e => update({ analysis: e.target.value, reviewed: false })} disabled={locked} /></label>
       <label className="mt-4 flex items-start gap-2 text-sm"><input className="mt-1 accent-primary" type="checkbox" checked={draft.reviewed} disabled={locked || !draft.analysis.trim()} onChange={e => update({ reviewed: e.target.checked })} /><Check className="mt-0.5 size-4 shrink-0 text-primary" />Conferi esta leitura com a fonte original</label>
     </section>

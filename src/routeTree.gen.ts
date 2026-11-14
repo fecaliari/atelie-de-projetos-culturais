@@ -18,8 +18,6 @@ import { Route as AuthenticatedModelosRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedRadarRouteImport } from './routes/_authenticated/radar'
 import { Route as AuthenticatedReferenciasRouteImport } from './routes/_authenticated/referencias'
-import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as ApiVerifyRouteImport } from './routes/api/verify'
 import { Route as AuthenticatedProjetosIndexRouteImport } from './routes/_authenticated/projetos.index'
 import { Route as AuthenticatedProjetosIdRouteImport } from './routes/_authenticated/projetos.$id'
 import { Route as AuthenticatedProjetosNovoRouteImport } from './routes/_authenticated/projetos.novo'
@@ -70,16 +68,6 @@ const AuthenticatedReferenciasRoute =
     path: '/referencias',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const ApiChatRoute = ApiChatRouteImport.update({
-  id: '/api/chat',
-  path: '/api/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiVerifyRoute = ApiVerifyRouteImport.update({
-  id: '/api/verify',
-  path: '/api/verify',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedProjetosIndexRoute =
   AuthenticatedProjetosIndexRouteImport.update({
     id: '/projetos/',
@@ -107,8 +95,6 @@ export interface FileRoutesByFullPath {
   '/painel': typeof AuthenticatedPainelRoute
   '/radar': typeof AuthenticatedRadarRoute
   '/referencias': typeof AuthenticatedReferenciasRoute
-  '/api/chat': typeof ApiChatRoute
-  '/api/verify': typeof ApiVerifyRoute
   '/projetos/$id': typeof AuthenticatedProjetosIdRoute
   '/projetos/novo': typeof AuthenticatedProjetosNovoRoute
   '/projetos/': typeof AuthenticatedProjetosIndexRoute
@@ -122,8 +108,6 @@ export interface FileRoutesByTo {
   '/painel': typeof AuthenticatedPainelRoute
   '/radar': typeof AuthenticatedRadarRoute
   '/referencias': typeof AuthenticatedReferenciasRoute
-  '/api/chat': typeof ApiChatRoute
-  '/api/verify': typeof ApiVerifyRoute
   '/projetos/$id': typeof AuthenticatedProjetosIdRoute
   '/projetos/novo': typeof AuthenticatedProjetosNovoRoute
   '/projetos': typeof AuthenticatedProjetosIndexRoute
@@ -139,8 +123,6 @@ export interface FileRoutesById {
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/radar': typeof AuthenticatedRadarRoute
   '/_authenticated/referencias': typeof AuthenticatedReferenciasRoute
-  '/api/chat': typeof ApiChatRoute
-  '/api/verify': typeof ApiVerifyRoute
   '/_authenticated/projetos/$id': typeof AuthenticatedProjetosIdRoute
   '/_authenticated/projetos/novo': typeof AuthenticatedProjetosNovoRoute
   '/_authenticated/projetos/': typeof AuthenticatedProjetosIndexRoute
@@ -156,8 +138,6 @@ export interface FileRouteTypes {
     | '/painel'
     | '/radar'
     | '/referencias'
-    | '/api/chat'
-    | '/api/verify'
     | '/projetos/$id'
     | '/projetos/novo'
     | '/projetos/'
@@ -171,8 +151,6 @@ export interface FileRouteTypes {
     | '/painel'
     | '/radar'
     | '/referencias'
-    | '/api/chat'
-    | '/api/verify'
     | '/projetos/$id'
     | '/projetos/novo'
     | '/projetos'
@@ -187,8 +165,6 @@ export interface FileRouteTypes {
     | '/_authenticated/painel'
     | '/_authenticated/radar'
     | '/_authenticated/referencias'
-    | '/api/chat'
-    | '/api/verify'
     | '/_authenticated/projetos/$id'
     | '/_authenticated/projetos/novo'
     | '/_authenticated/projetos/'
@@ -198,8 +174,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  ApiChatRoute: typeof ApiChatRoute
-  ApiVerifyRoute: typeof ApiVerifyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -267,20 +241,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReferenciasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/chat': {
-      id: '/api/chat'
-      path: '/api/chat'
-      fullPath: '/api/chat'
-      preLoaderRoute: typeof ApiChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/verify': {
-      id: '/api/verify'
-      path: '/api/verify'
-      fullPath: '/api/verify'
-      preLoaderRoute: typeof ApiVerifyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/projetos/': {
       id: '/_authenticated/projetos/'
       path: '/projetos'
@@ -336,8 +296,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  ApiChatRoute: ApiChatRoute,
-  ApiVerifyRoute: ApiVerifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
