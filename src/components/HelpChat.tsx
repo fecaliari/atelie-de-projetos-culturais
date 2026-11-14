@@ -1,32 +1,13 @@
 import { useState } from "react";
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
 import { HelpCircle, X } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from "@/components/ai-elements/conversation";
-import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
-import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea } from "@/components/ai-elements/prompt-input";
-import { Shimmer } from "@/components/ai-elements/shimmer";
-
-const transport = new DefaultChatTransport({
-  api: "/api/chat",
-  headers: async (): Promise<Record<string, string>> => {
-    const { data } = await supabase.auth.getSession();
-    return data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {};
-  },
-});
+import { Textarea } from "@/components/ui/textarea";
+import { PromptCard } from "@/components/PromptCard";
+import { HELP_INSTRUCTIONS, composePrompt } from "@/lib/prompts";
 
 export function HelpChat() {
   const [open, setOpen] = useState(false);
-  const { messages, sendMessage, status, stop } = useChat({
-    transport,
-    onError: (e) => {
-      const m = e.message || "";
-      toast.error(m.includes("429") ? "Muitas mensagens seguidas. Aguarde um pouco." : m.includes("402") ? "Créditos de IA esgotados." : "Não foi possível falar com a ajuda agora.");
-    },
-  });
-  const busy = status === "submitted" || status === "streaming";
+  const [question, setQuestion] = useState("");
+  const text = question.trim();
 
   return (
     <>
@@ -38,41 +19,25 @@ export function HelpChat() {
         {open ? <X className="h-4 w-4" /> : <HelpCircle className="h-4 w-4" />} Ajuda
       </button>
       {open && (
-        <div className="fixed bottom-20 right-5 z-40 flex h-[70vh] w-[min(420px,calc(100vw-2.5rem))] flex-col border border-border bg-background shadow-xl print:hidden">
-          <div className="border-b border-border px-4 py-3">
+        <div className="fixed bottom-20 right-5 z-40 flex max-h-[80vh] w-[min(460px,calc(100vw-2.5rem))] flex-col gap-4 overflow-y-auto border border-border bg-background p-4 shadow-xl print:hidden">
+          <div>
             <p className="eyebrow">Ajuda</p>
-            <p className="font-serif text-lg">Converse com a assistente</p>
+            <p className="font-serif text-lg">Tire sua dúvida no seu chat de IA</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Escreva a dúvida, copie o texto pronto e cole no Claude, ChatGPT ou Gemini que você já
+              usa.
+            </p>
           </div>
-          <Conversation className="flex-1">
-            <ConversationContent>
-              {messages.length === 0 ? (
-                <ConversationEmptyState title="Como posso ajudar?" description="Pergunte sobre editais, orçamento, acessibilidade ou como usar o app." />
-              ) : (
-                messages.map((m) => (
-                  <Message key={m.id} from={m.role}>
-                    <MessageContent className={m.role === "user" ? "bg-primary text-primary-foreground" : ""}>
-                      {m.parts.map((p, i) => (p.type === "text" ? <MessageResponse key={i}>{p.text}</MessageResponse> : null))}
-                    </MessageContent>
-                  </Message>
-                ))
-              )}
-              {status === "submitted" && <Shimmer>Pensando…</Shimmer>}
-            </ConversationContent>
-            <ConversationScrollButton />
-          </Conversation>
-          <div className="p-3">
-            <PromptInput
-              onSubmit={(msg) => {
-                const text = msg.text?.trim();
-                if (text && !busy) sendMessage({ text });
-              }}
-            >
-              <PromptInputTextarea placeholder="Escreva sua dúvida…" />
-              <PromptInputFooter className="justify-end">
-                <PromptInputSubmit status={status} onStop={stop} />
-              </PromptInputFooter>
-            </PromptInput>
-          </div>
+          <Textarea
+            aria-label="Sua dúvida"
+            placeholder="Ex.: o que é contrapartida social e como eu escrevo a minha?"
+            className="min-h-24 bg-paper"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+          />
+          {text && (
+            <PromptCard prompt={composePrompt(HELP_INSTRUCTIONS, `Minha dúvida:\n${text}`)} />
+          )}
         </div>
       )}
     </>
