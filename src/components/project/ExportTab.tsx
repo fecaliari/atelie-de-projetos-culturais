@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 export function ExportTab({ project, template, answers }: { project: Project; template: Template; answers: Answer[] }) {
   const id = project.id;
-  const [busy, setBusy] = useState<"" | "docx" | "pdf">("");
+  const [busy, setBusy] = useState<"" | "docx" | "pdf" | "xlsx">("");
   const [erro, setErro] = useState("");
 
   const { data, isLoading } = useQuery({
@@ -25,7 +25,7 @@ export function ExportTab({ project, template, answers }: { project: Project; te
     },
   });
 
-  async function make(kind: "docx" | "pdf") {
+  async function make(kind: "docx" | "pdf" | "xlsx") {
     if (!data) return;
     setBusy(kind);
     setErro("");
@@ -34,6 +34,9 @@ export function ExportTab({ project, template, answers }: { project: Project; te
       if (kind === "docx") {
         const { buildDocx } = await import("@/lib/exportDocx");
         await deliverFile(await buildDocx(model), fileName(project.name, "docx"));
+      } else if (kind === "xlsx") {
+        const { buildXlsx } = await import("@/lib/exportXlsx");
+        await deliverFile(await buildXlsx(model), fileName(`${project.name}-orcamento`, "xlsx"));
       } else {
         const { buildPdf } = await import("@/lib/exportPdf");
         await deliverFile(await buildPdf(model), fileName(project.name, "pdf"));
@@ -68,6 +71,9 @@ export function ExportTab({ project, template, answers }: { project: Project; te
         <Button variant="outline" onClick={() => make("pdf")} disabled={!!busy}>
           {busy === "pdf" ? "Gerando…" : "Baixar PDF"}
         </Button>
+        <Button variant="outline" onClick={() => make("xlsx")} disabled={!!busy}>
+          {busy === "xlsx" ? "Gerando…" : "Baixar planilha (.xlsx)"}
+        </Button>
       </div>
       {erro && <p className="text-sm text-destructive">{erro}</p>}
 
@@ -82,7 +88,7 @@ export function ExportTab({ project, template, answers }: { project: Project; te
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground">O arquivo traz: informações gerais, todas as respostas por etapa, orçamento, cronograma, equipe, acessibilidade, democratização e a lista de documentos anexados.</p>
+      <p className="text-xs text-muted-foreground">A planilha traz o orçamento com fórmulas (mude a quantidade e o total recalcula), o resumo por categoria, o cronograma e a equipe. O Word e o PDF trazem: informações gerais, todas as respostas por etapa, orçamento, cronograma, equipe, acessibilidade, democratização e a lista de documentos anexados.</p>
     </div>
   );
 }
