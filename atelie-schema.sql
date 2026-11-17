@@ -234,3 +234,13 @@ ALTER TABLE public.library_sources ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Owners access library sources" ON public.library_sources FOR ALL TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 CREATE INDEX library_sources_owner_library ON public.library_sources(user_id,library);
 CREATE POLICY "Owners access library files" ON storage.objects FOR ALL TO authenticated USING (bucket_id = 'library-files' AND (storage.foldername(name))[1] = auth.uid()::text) WITH CHECK (bucket_id = 'library-files' AND (storage.foldername(name))[1] = auth.uid()::text);
+
+
+-- ===== 0004_library_metadata.sql =====
+ALTER TABLE public.library_sources
+  ADD COLUMN IF NOT EXISTS tags text[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS year integer CHECK (year IS NULL OR year BETWEEN 1990 AND 2100),
+  ADD COLUMN IF NOT EXISTS sphere text CHECK (sphere IS NULL OR sphere IN ('federal','estadual','municipal','privado','outro')),
+  ADD COLUMN IF NOT EXISTS organ text NOT NULL DEFAULT '',
+  ADD COLUMN IF NOT EXISTS deadline date;
+CREATE INDEX IF NOT EXISTS library_sources_tags ON public.library_sources USING gin (tags);

@@ -5,6 +5,38 @@ import type { Database } from "@/integrations/supabase/types";
 export type Library = "editais" | "referencias";
 export type Source = Database["public"]["Tables"]["library_sources"]["Row"];
 export const SOURCE_KINDS = { arquivo: "Arquivo", link: "Link", video: "Vídeo", texto: "Texto" };
+export const SPHERES = { federal: "Federal", estadual: "Estadual", municipal: "Municipal", privado: "Privado", outro: "Outro" };
+/** Transforma "Rouanet, audiovisual,  rouanet" em ["Rouanet", "audiovisual"] (sem repetir, sem vazios). */
+export function parseTags(text: string) {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of text.split(/[,;\n]/)) {
+    const tag = raw.trim().replace(/\s+/g, " ").slice(0, 40);
+    const key = tag.toLocaleLowerCase("pt-BR");
+    if (tag && !seen.has(key)) { seen.add(key); out.push(tag); }
+  }
+  return out.slice(0, 20);
+}
+export function allTags(sources: { tags?: string[] | null }[]) {
+  const map = new Map<string, string>();
+  for (const s of sources) for (const t of s.tags ?? []) if (!map.has(t.toLocaleLowerCase("pt-BR"))) map.set(t.toLocaleLowerCase("pt-BR"), t);
+  return [...map.values()].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+export function parseYear(text: string) {
+  if (!text.trim()) return null;
+  const n = Number(text);
+  if (!Number.isInteger(n) || n < 1990 || n > 2100) throw new Error("Informe o ano com 4 números (por exemplo, 2026).");
+  return n;
+}
+/** Prazo: "vencido", "hoje", "em N dias" ou "" quando não há prazo. */
+export function deadlineLabel(deadline: string | null | undefined, today = new Date()) {
+  if (!deadline) return "";
+  const [y = 0, m = 1, d = 1] = deadline.split("-").map(Number);
+  const days = Math.round((Date.UTC(y, m - 1, d) - Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())) / 86400000);
+  if (days < 0) return "prazo encerrado";
+  if (days === 0) return "prazo é hoje";
+  return days === 1 ? "prazo amanhã" : `prazo em ${days} dias`;
+}
 export function publicLink(value: string) {
   const url = new URL(value);
   if (url.protocol !== "https:" && url.protocol !== "http:") throw new Error("Use um link http ou https.");
