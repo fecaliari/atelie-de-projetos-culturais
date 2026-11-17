@@ -8,6 +8,7 @@ import { brl } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { PromptCard } from "@/components/PromptCard";
 import { VERIFY_INSTRUCTIONS, composePrompt } from "@/lib/prompts";
+import { sourceForPrompt } from "@/lib/library";
 
 export function VerifyTab({
   project,
@@ -22,17 +23,22 @@ export function VerifyTab({
   const { data } = useQuery({
     queryKey: ["verify-data", id],
     queryFn: async () => {
-      const [b, s, t, d] = await Promise.all([
+      const [b, s, t, d, l] = await Promise.all([
         supabase.from("budget_items").select("*").eq("project_id", id),
         supabase.from("schedule_items").select("*").eq("project_id", id),
         supabase.from("team_members").select("*").eq("project_id", id),
         supabase.from("project_documents").select("name").eq("project_id", id),
+        supabase.from("project_sources").select("source_id").eq("project_id", id),
       ]);
+      const ids = (l.data ?? []).map((x) => x.source_id);
+      const linked = ids.length ? (await supabase.from("library_sources").select("*").in("id", ids)).data ?? [] : [];
       return {
         budget: b.data ?? [],
         schedule: s.data ?? [],
         team: t.data ?? [],
         docs: d.data ?? [],
+        editais: linked.filter((x) => x.library === "editais"),
+        referencias: linked.filter((x) => x.library === "referencias"),
       };
     },
   });
@@ -53,6 +59,8 @@ export function VerifyTab({
   function analyze() {
     const dump = [
       `Edital/modelo: ${template.name} (${template.mechanism})`,
+      ...(data!.editais.length ? [`## Edital de destino (regras a conferir)\n${data!.editais.map((e) => sourceForPrompt(e)).join("\n\n")}`] : []),
+      ...(data!.referencias.length ? [`## Referências ligadas ao projeto\n${data!.referencias.map((e) => sourceForPrompt(e, 8000)).join("\n\n")}`] : []),
       `Projeto: ${project.name}`,
       ...template.fields.map(
         (f) =>

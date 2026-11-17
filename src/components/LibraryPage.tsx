@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Search, ArrowLeft, ExternalLink, FileText, Link as LinkIcon, Film, BookOpen, Trash2, Sparkles, Check, Save } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { libraryQuery, SOURCE_KINDS, SPHERES, allTags, parseTags, parseYear, deadlineLabel, extractSourceFile, publicLink, type Library, type Source } from "@/lib/library";
+import { libraryQuery, linksOfSource, SOURCE_KINDS, SPHERES, allTags, parseTags, parseYear, deadlineLabel, extractSourceFile, publicLink, type Library, type Source } from "@/lib/library";
 import { PromptCard } from "@/components/PromptCard";
 import { libraryInstructions, composePrompt } from "@/lib/prompts";
 
@@ -112,6 +113,7 @@ function SourceEditor({ source, known, library, onClose, onSaved }: { source: So
     await qc.invalidateQueries({ queryKey: ["library", library] });
     toast.success("Fonte apagada"); onClose();
   }
+  const { data: linkedProjects = [] } = useQuery({ ...linksOfSource(source?.id ?? ""), enabled: !!source });
   const locked = busy || extracting;
   return <div className="max-w-5xl">
     <PageHeader eyebrow={library === "editais" ? "Editais" : "Referências"} title={source ? "fonte do acervo" : "adicionar fonte"}>
@@ -133,6 +135,7 @@ function SourceEditor({ source, known, library, onClose, onSaved }: { source: So
       <label className="block text-sm">Etiquetas (separe por vírgula)<Input className="mt-2 bg-paper" list="library-tags" placeholder="audiovisual, música, mostra…" value={draft.tags} onChange={e => update({ tags: e.target.value })} /><datalist id="library-tags">{allTags(known).map(t => <option key={t} value={t} />)}</datalist></label>
       <label className="block text-sm">Anotações<Textarea className="mt-2 min-h-24 bg-paper" value={draft.notes} onChange={e => update({ notes: e.target.value })} /></label>
     </fieldset>
+    {source && <section className="mt-8 border-t border-border pt-5"><p className="eyebrow">projetos ligados</p>{linkedProjects.length ? <ul className="mt-3 space-y-1 text-sm">{linkedProjects.filter(l => l.projects).map(l => <li key={l.project_id}><Link to="/projetos/$id" params={{ id: l.project_id }} className="underline underline-offset-4">{l.projects!.name}</Link></li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">Nenhum projeto ligado. No projeto, abra a aba Fontes para ligar esta fonte.</p>}</section>}
     <section className="mt-10 border-t-2 border-primary pt-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl text-primary">leitura da fonte</h2><div className="flex flex-wrap gap-2">{(source?.file_path || draft.url) && <Button variant="outline" onClick={openOriginal} disabled={locked}><ExternalLink className="size-4" />Original</Button>}<Button variant="outline" onClick={() => setShowPrompt(v => !v)} disabled={locked || !draft.content.trim()}><Sparkles className="size-4" />{showPrompt ? "Esconder texto para IA" : "Preparar texto para IA"}</Button></div></div>
       {showPrompt && <div className="mb-4"><PromptCard prompt={composePrompt(libraryInstructions(library), `Título: ${draft.title}\nTipo: ${draft.kind}\nTexto da fonte:\n${draft.content}`)} hint="Copie o texto abaixo, cole no seu chat de IA e traga a resposta de volta para o campo de leitura preliminar. Depois, confira com a fonte original." /></div>}

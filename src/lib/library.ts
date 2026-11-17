@@ -85,3 +85,30 @@ export async function extractSourceFile(file: File) {
   }
   throw new Error("Escolha um arquivo PDF, DOCX, TXT ou MD.");
 }
+// ---- Ligações entre projetos e fontes ----
+export type ProjectSourceLink = Database["public"]["Tables"]["project_sources"]["Row"];
+export const linksOfProject = (projectId: string) => queryOptions({
+  queryKey: ["project-sources", projectId],
+  queryFn: async () => {
+    const r = await supabase.from("project_sources").select("*").eq("project_id", projectId);
+    if (r.error) throw new Error(r.error.message);
+    return r.data;
+  },
+});
+export const linksOfSource = (sourceId: string) => queryOptions({
+  queryKey: ["source-projects", sourceId],
+  queryFn: async () => {
+    const r = await supabase.from("project_sources").select("project_id, projects(id, name, status)").eq("source_id", sourceId);
+    if (r.error) throw new Error(r.error.message);
+    return r.data as unknown as { project_id: string; projects: { id: string; name: string; status: string } | null }[];
+  },
+});
+/** Texto do edital escolhido para a verificação: dados, leitura revisada e o texto (cortado se for enorme). */
+export function sourceForPrompt(s: Pick<Source, "title" | "organ" | "year" | "sphere" | "deadline" | "analysis" | "reviewed" | "content" | "notes">, maxChars = 60000) {
+  const head = [s.title, s.organ, s.year ? String(s.year) : "", s.sphere ?? "", s.deadline ? `prazo ${s.deadline}` : ""].filter(Boolean).join(" · ");
+  const parts = [`### ${head}`];
+  if (s.analysis.trim()) parts.push(`Leitura ${s.reviewed ? "(conferida pelo usuário com o original)" : "(preliminar, ainda não conferida)"}:\n${s.analysis.trim()}`);
+  if (s.notes.trim()) parts.push(`Anotações do usuário:\n${s.notes.trim()}`);
+  if (s.content.trim()) parts.push(`Texto da fonte:\n${s.content.length > maxChars ? s.content.slice(0, maxChars) + "\n[…texto cortado por tamanho]" : s.content}`);
+  return parts.join("\n\n");
+}

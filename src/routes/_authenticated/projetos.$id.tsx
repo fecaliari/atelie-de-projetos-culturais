@@ -10,10 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { VerifyTab } from "@/components/project/VerifyTab";
 import { ExportTab } from "@/components/project/ExportTab";
+import { SourcesTab } from "@/components/project/SourcesTab";
 import { ShareTab } from "@/components/project/ShareTab";
 import { AccessibilityTab, BudgetTab, DemocratizationTab, DocumentsTab, ScheduleTab, TeamTab } from "@/components/project/ProjectTabs";
 
-const TABS = ["Perguntas", "Orçamento", "Cronograma", "Equipe", "Acessibilidade", "Democratização", "Documentos", "Verificação", "Exportar", "Colaboração"] as const;
+const TABS = ["Perguntas", "Orçamento", "Cronograma", "Equipe", "Acessibilidade", "Democratização", "Documentos", "Fontes", "Verificação", "Exportar", "Colaboração"] as const;
 
 export const Route = createFileRoute("/_authenticated/projetos/$id")({
     head: () => ({ meta: [{ title: "Projeto — Ateliê Cultural" }, { name: "description", content: "Construção guiada do projeto." }, { property: "og:title", content: "Projeto — Ateliê Cultural" }, { property: "og:description", content: "Construção guiada do projeto." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }),
@@ -67,6 +68,7 @@ function ProjectPage() {
       : !showFull && tab === "Acessibilidade" ? <AccessibilityTab project={p} />
       : !showFull && tab === "Democratização" ? <DemocratizationTab project={p} />
       : !showFull && tab === "Documentos" ? <DocumentsTab projectId={id} />
+      : !showFull && tab === "Fontes" ? <SourcesTab projectId={id} />
       : !showFull && tab === "Verificação" ? <VerifyTab project={p} template={tpl} answers={answers} />
       : !showFull && tab === "Exportar" ? <ExportTab project={p} template={tpl} answers={answers} />
       : !showFull && tab === "Colaboração" ? <ShareTab project={p} />
