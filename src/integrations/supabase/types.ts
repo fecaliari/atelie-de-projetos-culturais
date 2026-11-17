@@ -150,6 +150,11 @@ export type Database = {
           updated_at: string
           url: string | null
           user_id: string
+          tags: string[]
+          year: number | null
+          sphere: string | null
+          organ: string
+          deadline: string | null
         }
         Insert: {
           analysis?: string
@@ -166,6 +171,11 @@ export type Database = {
           updated_at?: string
           url?: string | null
           user_id?: string
+          tags?: string[]
+          year?: number | null
+          sphere?: string | null
+          organ?: string
+          deadline?: string | null
         }
         Update: {
           analysis?: string
@@ -182,6 +192,11 @@ export type Database = {
           updated_at?: string
           url?: string | null
           user_id?: string
+          tags?: string[]
+          year?: number | null
+          sphere?: string | null
+          organ?: string
+          deadline?: string | null
         }
         Relationships: []
       }

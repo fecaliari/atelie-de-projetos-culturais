@@ -7,39 +7,47 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { libraryQuery, SOURCE_KINDS, extractSourceFile, publicLink, type Library, type Source } from "@/lib/library";
+import { libraryQuery, SOURCE_KINDS, SPHERES, allTags, parseTags, parseYear, deadlineLabel, extractSourceFile, publicLink, type Library, type Source } from "@/lib/library";
 import { PromptCard } from "@/components/PromptCard";
 import { libraryInstructions, composePrompt } from "@/lib/prompts";
 
 const ICONS = { arquivo: FileText, link: LinkIcon, video: Film, texto: BookOpen };
-type Draft = { title: string; kind: Source["kind"]; url: string; content: string; notes: string; analysis: string; reviewed: boolean };
-const fresh = (): Draft => ({ title: "", kind: "arquivo", url: "", content: "", notes: "", analysis: "", reviewed: false });
+type Draft = { title: string; kind: Source["kind"]; url: string; content: string; notes: string; analysis: string; reviewed: boolean; tags: string; year: string; sphere: string; organ: string; deadline: string };
+const fresh = (): Draft => ({ title: "", kind: "arquivo", url: "", content: "", notes: "", analysis: "", reviewed: false, tags: "", year: "", sphere: "", organ: "", deadline: "" });
 
 export function LibraryPage({ library }: { library: Library }) {
   const { data: sources } = useSuspenseQuery(libraryQuery(library));
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("todos");
+  const [sphereFilter, setSphereFilter] = useState("todas");
+  const [yearFilter, setYearFilter] = useState("todos");
+  const [tagFilter, setTagFilter] = useState("");
   const [selection, setSelection] = useState<Source | "new" | null>(null);
   const title = library === "editais" ? "biblioteca de editais" : "biblioteca de referências";
-  if (selection) return <SourceEditor key={typeof selection === "string" ? "new" : selection.id} source={selection === "new" ? null : selection} library={library} onClose={() => setSelection(null)} onSaved={setSelection} />;
-  const visible = sources.filter(s => (filter === "todos" || s.kind === filter) && `${s.title} ${s.notes}`.toLocaleLowerCase("pt-BR").includes(search.toLocaleLowerCase("pt-BR")));
+  if (selection) return <SourceEditor key={typeof selection === "string" ? "new" : selection.id} source={selection === "new" ? null : selection} known={sources} library={library} onClose={() => setSelection(null)} onSaved={setSelection} />;
+  const tags = allTags(sources);
+  const years = [...new Set(sources.map(s => s.year).filter((y): y is number => !!y))].sort((a, b) => b - a);
+  const visible = sources.filter(s => (filter === "todos" || s.kind === filter) && (sphereFilter === "todas" || s.sphere === sphereFilter) && (yearFilter === "todos" || String(s.year) === yearFilter) && (!tagFilter || s.tags.some(t => t.toLocaleLowerCase("pt-BR") === tagFilter.toLocaleLowerCase("pt-BR"))) && `${s.title} ${s.notes} ${s.organ} ${s.tags.join(" ")}`.toLocaleLowerCase("pt-BR").includes(search.toLocaleLowerCase("pt-BR")));
   return <div className="max-w-5xl">
     <PageHeader eyebrow="Acervo" title={title}><Button onClick={() => setSelection("new")}><Plus className="size-4" />Adicionar fonte</Button></PageHeader>
     <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
       <div className="relative w-full sm:w-80"><Search className="absolute left-3 top-3 size-4 text-muted-foreground" /><Input aria-label="Buscar fontes" className="bg-paper pl-9" placeholder="Buscar no acervo" value={search} onChange={e => setSearch(e.target.value)} /></div>
       <select aria-label="Tipo de fonte" className="h-9 rounded-sm border border-input bg-paper px-3 text-sm" value={filter} onChange={e => setFilter(e.target.value)}><option value="todos">Todos os tipos</option>{Object.entries(SOURCE_KINDS).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select>
+      <select aria-label="Esfera" className="h-9 rounded-sm border border-input bg-paper px-3 text-sm" value={sphereFilter} onChange={e => setSphereFilter(e.target.value)}><option value="todas">Todas as esferas</option>{Object.entries(SPHERES).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select>
+      {!!years.length && <select aria-label="Ano" className="h-9 rounded-sm border border-input bg-paper px-3 text-sm" value={yearFilter} onChange={e => setYearFilter(e.target.value)}><option value="todos">Todos os anos</option>{years.map(y => <option key={y} value={String(y)}>{y}</option>)}</select>}
     </div>
+    {!!tags.length && <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Etiquetas">{tags.map(t => { const on = tagFilter.toLocaleLowerCase("pt-BR") === t.toLocaleLowerCase("pt-BR"); return <Button key={t} size="sm" variant={on ? "default" : "outline"} aria-pressed={on} className="h-7 rounded-full px-3 text-xs" onClick={() => setTagFilter(on ? "" : t)}>{t}</Button>; })}</div>}
     <div className="mb-3 flex items-baseline justify-between border-b border-border pb-3"><span className="eyebrow">fontes guardadas</span><span className="text-sm text-muted-foreground">{visible.length} {visible.length === 1 ? "fonte" : "fontes"}</span></div>
     {!visible.length ? <div className="py-16 text-center"><BookOpen className="mx-auto mb-4 size-9 text-primary" /><h2 className="text-lg">{sources.length ? "nenhuma fonte encontrada" : "seu acervo começa aqui"}</h2><p className="mt-2 text-sm text-muted-foreground">{sources.length ? "Nenhum resultado para esta busca." : "Nenhuma fonte adicionada ainda."}</p>{!sources.length && <Button variant="outline" className="mt-6" onClick={() => setSelection("new")}><Plus className="size-4" />Adicionar fonte</Button>}</div> : <ul className="divide-y divide-border">{visible.map(source => {
       const Icon = ICONS[source.kind as keyof typeof ICONS] ?? FileText;
-      return <li key={source.id} className="flex items-center gap-4 py-5"><Icon className="size-5 shrink-0 text-primary" /><div className="min-w-0 flex-1"><Button variant="link" className="h-auto max-w-full whitespace-normal p-0 text-left text-base text-foreground" onClick={() => setSelection(source)}>{source.title}</Button><p className="mt-1 text-xs text-muted-foreground">{SOURCE_KINDS[source.kind as keyof typeof SOURCE_KINDS]} · {source.reviewed ? "Leitura revisada" : source.analysis ? "Leitura pendente de revisão" : "Sem leitura"}</p>{source.notes && <p className="mt-2 line-clamp-1 text-sm text-muted-foreground">{source.notes}</p>}</div><Button variant="outline" size="sm" onClick={() => setSelection(source)}>Abrir</Button></li>;
+      return <li key={source.id} className="flex items-center gap-4 py-5"><Icon className="size-5 shrink-0 text-primary" /><div className="min-w-0 flex-1"><Button variant="link" className="h-auto max-w-full whitespace-normal p-0 text-left text-base text-foreground" onClick={() => setSelection(source)}>{source.title}</Button><p className="mt-1 text-xs text-muted-foreground">{SOURCE_KINDS[source.kind as keyof typeof SOURCE_KINDS]} · {source.reviewed ? "Leitura revisada" : source.analysis ? "Leitura pendente de revisão" : "Sem leitura"}{source.sphere ? ` · ${SPHERES[source.sphere as keyof typeof SPHERES] ?? source.sphere}` : ""}{source.year ? ` · ${source.year}` : ""}{source.organ ? ` · ${source.organ}` : ""}{source.deadline ? ` · ${deadlineLabel(source.deadline)}` : ""}</p>{!!source.tags.length && <p className="mt-2 flex flex-wrap gap-1.5">{source.tags.map(t => <span key={t} className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">{t}</span>)}</p>}{source.notes && <p className="mt-2 line-clamp-1 text-sm text-muted-foreground">{source.notes}</p>}</div><Button variant="outline" size="sm" onClick={() => setSelection(source)}>Abrir</Button></li>;
     })}</ul>}
   </div>;
 }
 
-function SourceEditor({ source, library, onClose, onSaved }: { source: Source | null; library: Library; onClose: () => void; onSaved: (source: Source) => void }) {
+function SourceEditor({ source, known, library, onClose, onSaved }: { source: Source | null; known: Source[]; library: Library; onClose: () => void; onSaved: (source: Source) => void }) {
   const qc = useQueryClient();
-  const [draft, setDraft] = useState<Draft>(source ? { title: source.title, kind: source.kind, url: source.url ?? "", content: source.content, notes: source.notes, analysis: source.analysis, reviewed: source.reviewed } : fresh());
+  const [draft, setDraft] = useState<Draft>(source ? { title: source.title, kind: source.kind, url: source.url ?? "", content: source.content, notes: source.notes, analysis: source.analysis, reviewed: source.reviewed, tags: source.tags.join(", "), year: source.year ? String(source.year) : "", sphere: source.sphere ?? "", organ: source.organ, deadline: source.deadline ?? "" } : fresh());
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -75,7 +83,8 @@ function SourceEditor({ source, library, onClose, onSaved }: { source: Source | 
         if (upload.error) throw new Error(upload.error.message);
         uploaded = path;
       }
-      const patch = { ...draft, title: draft.title.trim(), library, url, file_path: path, file_name: file?.name ?? source?.file_name ?? null, updated_at: new Date().toISOString() };
+      const { tags, year, sphere, organ, deadline, ...rest } = draft;
+      const patch = { ...rest, tags: parseTags(tags), year: parseYear(year), sphere: sphere || null, organ: organ.trim(), deadline: deadline || null, title: draft.title.trim(), library, url, file_path: path, file_name: file?.name ?? source?.file_name ?? null, updated_at: new Date().toISOString() };
       const result = source ? await supabase.from("library_sources").update(patch).eq("id", source.id).select().single() : await supabase.from("library_sources").insert(patch).select().single();
       if (result.error) throw new Error(result.error.message);
       if (uploaded && source?.file_path && source.file_path !== uploaded) await supabase.storage.from("library-files").remove([source.file_path]);
@@ -115,6 +124,13 @@ function SourceEditor({ source, library, onClose, onSaved }: { source: Source | 
       {draft.kind === "arquivo" && <label className="block text-sm">Arquivo (PDF, Word ou texto; até 10 MB)<Input className="mt-2 bg-paper" type="file" accept=".pdf,.docx,.txt,.md" onChange={e => void selectFile(e.target.files?.[0])} />{(file?.name || source?.file_name) && <span className="mt-2 block text-xs text-muted-foreground">{file?.name ?? source?.file_name}</span>}</label>}
       {(draft.kind === "link" || draft.kind === "video") && <label className="block text-sm">Link<Input className="mt-2 bg-paper" type="url" placeholder="https://" value={draft.url} onChange={e => update({ url: e.target.value })} /></label>}
       <label className="block text-sm">{draft.kind === "video" ? "Transcrição do vídeo" : draft.kind === "link" ? "Texto da página" : "Texto da fonte"}<Textarea className="mt-2 min-h-56 bg-paper" value={draft.content} onChange={e => update({ content: e.target.value, reviewed: false })} placeholder={draft.kind === "link" || draft.kind === "video" ? "Cole o conteúdo que deseja analisar" : "Texto da fonte"} /><span className="mt-2 block text-xs text-muted-foreground">{draft.content.length.toLocaleString("pt-BR")} caracteres{extracting ? " · Lendo arquivo…" : ""}</span></label>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <label className="block text-sm">Esfera<select className="mt-2 h-9 w-full rounded-sm border border-input bg-paper px-3 text-sm" value={draft.sphere} onChange={e => update({ sphere: e.target.value })}><option value="">Não informada</option>{Object.entries(SPHERES).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+        <label className="block text-sm">Ano<Input className="mt-2 bg-paper" inputMode="numeric" placeholder="2026" maxLength={4} value={draft.year} onChange={e => update({ year: e.target.value.replace(/\D/g, "") })} /></label>
+        <label className="block text-sm">Órgão ou instituição<Input className="mt-2 bg-paper" placeholder="Secult-ES, Funcultura…" value={draft.organ} onChange={e => update({ organ: e.target.value })} /></label>
+        <label className="block text-sm">Prazo de inscrição<Input className="mt-2 bg-paper" type="date" value={draft.deadline} onChange={e => update({ deadline: e.target.value })} /></label>
+      </div>
+      <label className="block text-sm">Etiquetas (separe por vírgula)<Input className="mt-2 bg-paper" list="library-tags" placeholder="audiovisual, música, mostra…" value={draft.tags} onChange={e => update({ tags: e.target.value })} /><datalist id="library-tags">{allTags(known).map(t => <option key={t} value={t} />)}</datalist></label>
       <label className="block text-sm">Anotações<Textarea className="mt-2 min-h-24 bg-paper" value={draft.notes} onChange={e => update({ notes: e.target.value })} /></label>
     </fieldset>
     <section className="mt-10 border-t-2 border-primary pt-6">
