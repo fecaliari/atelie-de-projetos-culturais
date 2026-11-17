@@ -273,6 +273,30 @@ export type Database = {
           },
         ]
       }
+      project_sources: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          source_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          source_id: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          source_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           accessibility: Json

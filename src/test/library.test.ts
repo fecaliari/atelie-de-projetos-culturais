@@ -36,3 +36,17 @@ describe("Etiquetas e metadados", () => {
     expect(deadlineLabel(null, hoje)).toBe("");
   });
 });
+
+import { sourceForPrompt } from "@/lib/library";
+describe("Fonte levada para a verificação", () => {
+  const base = { title: "Edital X", organ: "Secult-ES", year: 2026, sphere: "estadual", deadline: "2026-12-01", analysis: "", reviewed: false, content: "Art. 1º", notes: "" };
+  it("inclui dados, texto e marca leitura não conferida", () => {
+    const t = sourceForPrompt({ ...base, analysis: "Valor máx. R$ 50 mil" });
+    expect(t).toContain("Edital X · Secult-ES · 2026 · estadual · prazo 2026-12-01");
+    expect(t).toContain("preliminar, ainda não conferida");
+    expect(t).toContain("Art. 1º");
+  });
+  it("corta texto muito grande avisando", () => {
+    expect(sourceForPrompt({ ...base, content: "a".repeat(100) }, 10)).toContain("texto cortado por tamanho");
+  });
+});
