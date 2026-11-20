@@ -31,12 +31,14 @@ export function VerifyTab({
         supabase.from("project_sources").select("source_id").eq("project_id", id),
       ]);
       const ids = (l.data ?? []).map((x) => x.source_id);
+      const ex = ids.length ? (await supabase.from("source_excerpts").select("*").in("source_id", ids).order("created_at")).data ?? [] : [];
       const linked = ids.length ? (await supabase.from("library_sources").select("*").in("id", ids)).data ?? [] : [];
       return {
         budget: b.data ?? [],
         schedule: s.data ?? [],
         team: t.data ?? [],
         docs: d.data ?? [],
+        excerpts: ex,
         editais: linked.filter((x) => x.library === "editais"),
         referencias: linked.filter((x) => x.library === "referencias"),
       };
@@ -59,8 +61,8 @@ export function VerifyTab({
   function analyze() {
     const dump = [
       `Edital/modelo: ${template.name} (${template.mechanism})`,
-      ...(data!.editais.length ? [`## Edital de destino (regras a conferir)\n${data!.editais.map((e) => sourceForPrompt(e)).join("\n\n")}`] : []),
-      ...(data!.referencias.length ? [`## Referências ligadas ao projeto\n${data!.referencias.map((e) => sourceForPrompt(e, 8000)).join("\n\n")}`] : []),
+      ...(data!.editais.length ? [`## Edital de destino (regras a conferir)\n${data!.editais.map((e) => sourceForPrompt(e, 60000, data!.excerpts.filter((x) => x.source_id === e.id))).join("\n\n")}`] : []),
+      ...(data!.referencias.length ? [`## Referências ligadas ao projeto\n${data!.referencias.map((e) => sourceForPrompt(e, 8000, data!.excerpts.filter((x) => x.source_id === e.id))).join("\n\n")}`] : []),
       `Projeto: ${project.name}`,
       ...template.fields.map(
         (f) =>

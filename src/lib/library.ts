@@ -104,10 +104,24 @@ export const linksOfSource = (sourceId: string) => queryOptions({
   },
 });
 /** Texto do edital escolhido para a verificação: dados, leitura revisada e o texto (cortado se for enorme). */
-export function sourceForPrompt(s: Pick<Source, "title" | "organ" | "year" | "sphere" | "deadline" | "analysis" | "reviewed" | "content" | "notes">, maxChars = 60000) {
+export type Excerpt = Database["public"]["Tables"]["source_excerpts"]["Row"];
+export const excerptsOfSource = (sourceId: string) => queryOptions({
+  queryKey: ["excerpts", sourceId],
+  queryFn: async () => {
+    const r = await supabase.from("source_excerpts").select("*").eq("source_id", sourceId).order("created_at");
+    if (r.error) throw new Error(r.error.message);
+    return r.data;
+  },
+});
+export function excerptLine(e: Pick<Excerpt, "label" | "location" | "excerpt">) {
+  const where = [e.label.trim(), e.location.trim() ? `(${e.location.trim()})` : ""].filter(Boolean).join(" ");
+  return `- ${where ? where + ": " : ""}“${e.excerpt.trim()}”`;
+}
+export function sourceForPrompt(s: Pick<Source, "title" | "organ" | "year" | "sphere" | "deadline" | "analysis" | "reviewed" | "content" | "notes">, maxChars = 60000, excerpts: Pick<Excerpt, "label" | "location" | "excerpt">[] = []) {
   const head = [s.title, s.organ, s.year ? String(s.year) : "", s.sphere ?? "", s.deadline ? `prazo ${s.deadline}` : ""].filter(Boolean).join(" · ");
   const parts = [`### ${head}`];
   if (s.analysis.trim()) parts.push(`Leitura ${s.reviewed ? "(conferida pelo usuário com o original)" : "(preliminar, ainda não conferida)"}:\n${s.analysis.trim()}`);
+  if (excerpts.length) parts.push(`Trechos marcados pelo usuário, com a origem:\n${excerpts.map(excerptLine).join("\n")}`);
   if (s.notes.trim()) parts.push(`Anotações do usuário:\n${s.notes.trim()}`);
   if (s.content.trim()) parts.push(`Texto da fonte:\n${s.content.length > maxChars ? s.content.slice(0, maxChars) + "\n[…texto cortado por tamanho]" : s.content}`);
   return parts.join("\n\n");

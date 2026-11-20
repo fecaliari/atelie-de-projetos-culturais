@@ -65,3 +65,15 @@ describe("Edições do mesmo edital", () => {
     expect(t).toContain("EDIÇÃO NOVA — Edital (2027)\nnovo");
   });
 });
+
+import { excerptLine } from "@/lib/library";
+describe("Trechos com origem", () => {
+  it("escreve o trecho com rótulo e local", () => {
+    expect(excerptLine({ label: "Valor máximo", location: "art. 5º", excerpt: " R$ 50 mil " })).toBe("- Valor máximo (art. 5º): “R$ 50 mil”");
+    expect(excerptLine({ label: "", location: "", excerpt: "x" })).toBe("- “x”");
+  });
+  it("leva os trechos para a verificação", () => {
+    const base = { title: "E", organ: "", year: null, sphere: null, deadline: null, analysis: "", reviewed: false, content: "", notes: "" };
+    expect(sourceForPrompt(base, 100, [{ label: "Prazo", location: "p. 2", excerpt: "até 01/12" }])).toContain("- Prazo (p. 2): “até 01/12”");
+  });
+});
