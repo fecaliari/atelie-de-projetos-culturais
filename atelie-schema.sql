@@ -264,3 +264,12 @@ CREATE POLICY "Owners manage project sources" ON public.project_sources FOR ALL 
   WITH CHECK (user_id = auth.uid() AND EXISTS (SELECT 1 FROM public.library_sources s WHERE s.id = source_id AND s.user_id = auth.uid()));
 CREATE INDEX IF NOT EXISTS project_sources_project ON public.project_sources(project_id);
 CREATE INDEX IF NOT EXISTS project_sources_source ON public.project_sources(source_id);
+
+
+-- ===== 0006_edital_editions.sql =====
+ALTER TABLE public.library_sources
+  ADD COLUMN IF NOT EXISTS previous_id uuid REFERENCES public.library_sources(id) ON DELETE SET NULL;
+DO $$ BEGIN
+  ALTER TABLE public.library_sources ADD CONSTRAINT library_sources_not_own_previous CHECK (previous_id IS NULL OR previous_id <> id);
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+CREATE INDEX IF NOT EXISTS library_sources_previous ON public.library_sources(previous_id);

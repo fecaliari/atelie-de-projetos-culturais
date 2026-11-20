@@ -112,3 +112,21 @@ export function sourceForPrompt(s: Pick<Source, "title" | "organ" | "year" | "sp
   if (s.content.trim()) parts.push(`Texto da fonte:\n${s.content.length > maxChars ? s.content.slice(0, maxChars) + "\n[…texto cortado por tamanho]" : s.content}`);
   return parts.join("\n\n");
 }
+
+// ---- Edições do mesmo edital ----
+/** Quem pode ser "edição anterior" de um edital: qualquer outro, menos ele mesmo e as edições que vieram depois dele (evita ciclo). */
+export function previousCandidates<T extends { id: string; previous_id: string | null }>(sources: T[], id: string | null) {
+  if (!id) return sources;
+  const banned = new Set([id]);
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const s of sources) if (s.previous_id && banned.has(s.previous_id) && !banned.has(s.id)) { banned.add(s.id); grew = true; }
+  }
+  return sources.filter(s => !banned.has(s.id));
+}
+/** Texto para o chat da pessoa comparar duas edições (cada texto é cortado se for enorme). */
+export function compareMaterial(prev: Pick<Source, "title" | "year" | "content">, next: Pick<Source, "title" | "year" | "content">, maxChars = 60000) {
+  const cut = (t: string) => t.length > maxChars ? t.slice(0, maxChars) + "\n[…texto cortado por tamanho]" : t;
+  return `# EDIÇÃO ANTERIOR — ${prev.title}${prev.year ? ` (${prev.year})` : ""}\n${cut(prev.content)}\n\n# EDIÇÃO NOVA — ${next.title}${next.year ? ` (${next.year})` : ""}\n${cut(next.content)}`;
+}

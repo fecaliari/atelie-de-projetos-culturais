@@ -50,3 +50,18 @@ describe("Fonte levada para a verificação", () => {
     expect(sourceForPrompt({ ...base, content: "a".repeat(100) }, 10)).toContain("texto cortado por tamanho");
   });
 });
+
+import { previousCandidates, compareMaterial } from "@/lib/library";
+describe("Edições do mesmo edital", () => {
+  const a = { id: "a", previous_id: null }, b = { id: "b", previous_id: "a" }, c = { id: "c", previous_id: "b" }, d = { id: "d", previous_id: null };
+  it("não deixa escolher a si mesmo nem uma edição posterior", () => {
+    expect(previousCandidates([a, b, c, d], "a").map(s => s.id)).toEqual(["d"]);
+    expect(previousCandidates([a, b, c, d], "b").map(s => s.id)).toEqual(["a", "d"]);
+    expect(previousCandidates([a, b], null).length).toBe(2);
+  });
+  it("monta o material de comparação com as duas edições", () => {
+    const t = compareMaterial({ title: "Edital", year: 2026, content: "velho" }, { title: "Edital", year: 2027, content: "novo" });
+    expect(t).toContain("EDIÇÃO ANTERIOR — Edital (2026)\nvelho");
+    expect(t).toContain("EDIÇÃO NOVA — Edital (2027)\nnovo");
+  });
+});

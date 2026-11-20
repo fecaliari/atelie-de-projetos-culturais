@@ -155,6 +155,7 @@ export type Database = {
           sphere: string | null
           organ: string
           deadline: string | null
+          previous_id: string | null
         }
         Insert: {
           analysis?: string
@@ -176,6 +177,7 @@ export type Database = {
           sphere?: string | null
           organ?: string
           deadline?: string | null
+          previous_id?: string | null
         }
         Update: {
           analysis?: string
@@ -197,6 +199,7 @@ export type Database = {
           sphere?: string | null
           organ?: string
           deadline?: string | null
+          previous_id?: string | null
         }
         Relationships: []
       }
