@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { libraryQuery, linksOfSource, previousCandidates, compareMaterial, SOURCE_KINDS, SPHERES, allTags, parseTags, parseYear, deadlineLabel, extractSourceFile, publicLink, type Library, type Source } from "@/lib/library";
+import { SourceExcerpts } from "@/components/SourceExcerpts";
 import { PromptCard } from "@/components/PromptCard";
 import { libraryInstructions, composePrompt, COMPARE_INSTRUCTIONS } from "@/lib/prompts";
 
@@ -140,6 +141,7 @@ function SourceEditor({ source, known, library, onClose, onSaved }: { source: So
       <label className="block text-sm">Anotações<Textarea className="mt-2 min-h-24 bg-paper" value={draft.notes} onChange={e => update({ notes: e.target.value })} /></label>
     </fieldset>
     {library === "editais" && previous && <section className="mt-8 border-t border-border pt-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="eyebrow">edição anterior</p><p className="mt-1 text-sm">{previous.title}{previous.year ? ` (${previous.year})` : ""}</p></div><Button variant="outline" onClick={() => setShowCompare(v => !v)} disabled={!previous.content.trim() || !draft.content.trim()}><Sparkles className="size-4" />{showCompare ? "Esconder comparação" : "Comparar com a edição anterior"}</Button></div>{(!previous.content.trim() || !draft.content.trim()) && <p className="mt-2 text-sm text-muted-foreground">Para comparar, as duas edições precisam ter o texto salvo.</p>}{showCompare && <div className="mt-4"><PromptCard prompt={composePrompt(COMPARE_INSTRUCTIONS, compareMaterial(previous, { title: draft.title, year: draft.year ? Number(draft.year) : null, content: draft.content }))} hint="Copie o texto abaixo, cole no seu chat de IA e confira o que ela apontar com os dois originais." /></div>}</section>}
+    {source && <SourceExcerpts sourceId={source.id} />}
     {source && <section className="mt-8 border-t border-border pt-5"><p className="eyebrow">projetos ligados</p>{linkedProjects.length ? <ul className="mt-3 space-y-1 text-sm">{linkedProjects.filter(l => l.projects).map(l => <li key={l.project_id}><Link to="/projetos/$id" params={{ id: l.project_id }} className="underline underline-offset-4">{l.projects!.name}</Link></li>)}</ul> : <p className="mt-2 text-sm text-muted-foreground">Nenhum projeto ligado. No projeto, abra a aba Fontes para ligar esta fonte.</p>}</section>}
     <section className="mt-10 border-t-2 border-primary pt-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl text-primary">leitura da fonte</h2><div className="flex flex-wrap gap-2">{(source?.file_path || draft.url) && <Button variant="outline" onClick={openOriginal} disabled={locked}><ExternalLink className="size-4" />Original</Button>}<Button variant="outline" onClick={() => setShowPrompt(v => !v)} disabled={locked || !draft.content.trim()}><Sparkles className="size-4" />{showPrompt ? "Esconder texto para IA" : "Preparar texto para IA"}</Button></div></div>

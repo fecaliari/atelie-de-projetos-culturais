@@ -454,6 +454,36 @@ export type Database = {
           },
         ]
       }
+      source_excerpts: {
+        Row: {
+          created_at: string
+          excerpt: string
+          id: string
+          label: string
+          location: string
+          source_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          excerpt: string
+          id?: string
+          label?: string
+          location?: string
+          source_id: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          excerpt?: string
+          id?: string
+          label?: string
+          location?: string
+          source_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       templates: {
         Row: {
           base_key: string | null
